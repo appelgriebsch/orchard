@@ -74,6 +74,7 @@ jobs:
                      -configuration Release \
                      -derivedDataPath build/ \
                      -archivePath build/Orchard.xcarchive \
+                     OTHER_CODE_SIGN_FLAGS="--options=runtime" \
                      archive
 
       - name: Export app
@@ -135,14 +136,29 @@ jobs:
         run: |
           if [[ -n "$APPLE_ID" && -n "$APPLE_PASSWORD" && -n "$APPLE_TEAM_ID" ]]; then
             echo "Submitting for notarization..."
-            xcrun notarytool submit "Orchard-${{ steps.version.outputs.version }}.dmg" \
+            SUBMIT_OUTPUT=$(xcrun notarytool submit "Orchard-${{ steps.version.outputs.version }}.dmg" \
                                     --apple-id "$APPLE_ID" \
                                     --password "$APPLE_PASSWORD" \
                                     --team-id "$APPLE_TEAM_ID" \
-                                    --wait
+                                    --wait 2>&1) || true
+            echo "$SUBMIT_OUTPUT"
 
-            echo "Stapling notarization ticket..."
-            xcrun stapler staple "Orchard-${{ steps.version.outputs.version }}.dmg"
+            SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep "id:" | head -1 | awk '{print $2}')
+
+            if echo "$SUBMIT_OUTPUT" | grep -q "status: Accepted"; then
+              echo "Notarization accepted, stapling..."
+              xcrun stapler staple "Orchard-${{ steps.version.outputs.version }}.dmg"
+            else
+              echo "Notarization failed. Fetching log..."
+              xcrun notarytool log "$SUBMISSION_ID" \
+                --apple-id "$APPLE_ID" \
+                --password "$APPLE_PASSWORD" \
+                --team-id "$APPLE_TEAM_ID" \
+                notarization-log.json || true
+              cat notarization-log.json
+              echo "::error::Notarization was not accepted. Check log above."
+              exit 1
+            fi
           else
             echo "Skipping notarization - secrets not configured"
           fi
