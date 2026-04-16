@@ -27,6 +27,18 @@ The ambition of the project is to make it easy for developers to switch from Doc
 - Builder, kernel and system property management
 - Menu bar integration
 
+![image management](assets/images.png)
+
+Browse, pull, and delete container images. Search Docker Hub directly from the app and inspect image metadata without dropping to the CLI.
+
+![container logs](assets/logs.png)
+
+Stream logs from multiple containers side by side. Split panes, filter by text, and use per-container colour coding to keep output readable when debugging across services.
+
+![container runtime stats](assets/runtime.png)
+
+Monitor live CPU, memory, and network usage for running containers. Sortable columns and persistent preferences make it easy to spot resource hotspots at a glance.
+
 ## Requirements
 
 - macOS 26 (Tahoe)
