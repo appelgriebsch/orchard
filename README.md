@@ -1,4 +1,4 @@
-# Orchard
+![Banner - Orchard](assets/banner.png)
 
 Orchard is a native (Swift) macOS application for managing Linux containers using Apple's [container](https://github.com/apple/container) tooling.
 
