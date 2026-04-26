@@ -98,6 +98,7 @@ struct ContainerDetailView: View {
             )
             .foregroundColor(selectedTab == tab ? .accentColor : .secondary)
             .cornerRadius(6)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
