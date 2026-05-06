@@ -1272,7 +1272,7 @@ class ContainerService: ObservableObject {
         }
 
         do {
-            let networkStates = try await ClientNetwork.list()
+            let networkStates = try await NetworkClient().list()
             let networks = networkStates.map { mapNetworkState($0) }
 
             await MainActor.run {
@@ -1304,11 +1304,11 @@ class ContainerService: ObservableObject {
             let config = try NetworkConfiguration(
                 id: name,
                 mode: .nat,
-                labels: labelDict,
-                pluginInfo: NetworkPluginInfo(plugin: "apple")
+                labels: try ResourceLabels(labelDict),
+                pluginInfo: NetworkPluginInfo(plugin: "container-network-vmnet")
             )
 
-            _ = try await ClientNetwork.create(configuration: config)
+            _ = try await NetworkClient().create(configuration: config)
 
             await MainActor.run {
                 self.successMessage = "Network '\(name)' created successfully"
@@ -1328,7 +1328,7 @@ class ContainerService: ObservableObject {
 
     func deleteNetwork(_ networkId: String) async {
         do {
-            try await ClientNetwork.delete(id: networkId)
+            try await NetworkClient().delete(id: networkId)
 
             await MainActor.run {
                 self.successMessage = "Network '\(networkId)' deleted successfully"
@@ -2152,8 +2152,8 @@ class ContainerService: ObservableObject {
         containerConfig.dns = dns
 
         // Set up network
-        let builtinNetworkId = try await ClientNetwork.builtin?.id
-        let networkId = networkName.isEmpty ? (builtinNetworkId ?? ClientNetwork.defaultNetworkName) : networkName
+        let builtinNetworkId = try await NetworkClient().builtin?.id
+        let networkId = networkName.isEmpty ? (builtinNetworkId ?? NetworkClient.defaultNetworkName) : networkName
         containerConfig.networks = [
             AttachmentConfiguration(
                 network: networkId,

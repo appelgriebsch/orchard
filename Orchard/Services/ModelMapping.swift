@@ -202,14 +202,14 @@ func mapNetworkState(_ state: NetworkState) -> ContainerNetwork {
         return ContainerNetwork(
             id: config.id,
             state: "created",
-            config: NetworkConfig(labels: config.labels, id: config.id),
+            config: NetworkConfig(labels: config.labels.dictionary, id: config.id),
             status: Orchard.NetworkStatus(gateway: nil, address: nil)
         )
     case .running(let config, let status):
         return ContainerNetwork(
             id: config.id,
             state: "running",
-            config: NetworkConfig(labels: config.labels, id: config.id),
+            config: NetworkConfig(labels: config.labels.dictionary, id: config.id),
             status: Orchard.NetworkStatus(
                 gateway: "\(status.ipv4Gateway)",
                 address: "\(status.ipv4Subnet)"
